@@ -1,0 +1,6 @@
+flask
+streamlit
+pandas
+openpyxl
+requests
+joblib
