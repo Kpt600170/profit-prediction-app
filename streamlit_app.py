@@ -105,13 +105,13 @@ elif option == "⌨️ Manual Prediction":
     st.write("Enter feature values to get an instant profit prediction.")
 
     # User input for prediction
-    feature1 = st.number_input("Feature 1", value=100000)
-    feature2 = st.number_input("Feature 2", value=120000)
-    feature3 = st.number_input("Feature 3", value=300000)
+    feature1 = st.number_input("R&D Spend", value=100000)
+    feature2 = st.number_input("Administration", value=120000)
+    feature3 = st.number_input("Marketing Spend", value=300000)
 
     if st.button("Predict Profit"):
         with st.spinner("Predicting..."):
-            response = requests.post("http://127.0.0.1:5000/predict_single", json={"features": [R&D Spend, Administration, Marketing Spend]})
+            response = requests.post("http://127.0.0.1:5000/predict_single", json={"features": [rd_spend, administration, marketing_spend]})
         
         if response.status_code == 200:
             result = response.json()
