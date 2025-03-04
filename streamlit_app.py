@@ -111,7 +111,7 @@ elif option == "⌨️ Manual Prediction":
 
     if st.button("Predict Profit"):
         with st.spinner("Predicting..."):
-            response = requests.post("http://127.0.0.1:5000/predict_single", json={"features": [feature1, feature2, feature3]})
+            response = requests.post("http://127.0.0.1:5000/predict_single", json={"features": [R&D Spend, Administration, Marketing Spend]})
         
         if response.status_code == 200:
             result = response.json()
