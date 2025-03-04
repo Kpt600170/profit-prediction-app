@@ -13,10 +13,17 @@ option = st.sidebar.radio("Go to", ["📂 Upload Excel File", "⌨️ Manual Pre
 # Function to send request to Flask API for Excel prediction
 def predict_from_excel(uploaded_file):
     try:
-        # Read the uploaded file into a DataFrame
-        df = pd.read_csv(uploaded_file)
-        
-        # Convert DataFrame to JSON
+        # Ensure correct engine based on file type
+        file_extension = uploaded_file.name.split(".")[-1]
+
+        if file_extension == "xlsx":
+            df = pd.read_excel(uploaded_file, engine="openpyxl")
+        elif file_extension == "xls":
+            df = pd.read_excel(uploaded_file, engine="xlrd")
+        else:
+            return {"error": "Unsupported file format. Please upload an Excel file (.xls or .xlsx)."}
+
+        # Convert DataFrame to JSON for API request
         json_data = {"features": df.values.tolist()}  
         
         # Send request to Flask API
@@ -34,49 +41,59 @@ if option == "📂 Upload Excel File":
 
     uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx", "xls", "csv"])
     
-    if uploaded_file is not None:
-        try:
-            # ✅ Read the file into a DataFrame
-            df = pd.read_excel(uploaded_file)
-            st.write("### Uploaded Data Preview")
-            st.dataframe(df.head())  # ✅ df is now defined before use
+if uploaded_file is not None:
+    try:
+        file_extension = uploaded_file.name.split(".")[-1]
 
-            with st.spinner("Predicting..."):
-                response = predict_from_excel(uploaded_file)
+        if file_extension == "xlsx":
+            df = pd.read_excel(uploaded_file, engine="openpyxl")
+        elif file_extension == "xls":
+            df = pd.read_excel(uploaded_file, engine="xlrd")
+        else:
+            st.error("Unsupported file format. Please upload an Excel file (.xls or .xlsx).")
+            st.stop()  # Stop execution if the file format is wrong
 
-            if response.status_code == 200:
-                result = response.json()
+        st.write("### Uploaded Data Preview")
+        st.dataframe(df.head())  # ✅ df is now defined before use
+
+        with st.spinner("Predicting..."):
+            response = predict_from_excel(uploaded_file)
+
+        if isinstance(response, dict) and "error" in response:
+            st.error(response["error"])
+        elif response.status_code == 200:
+            result = response.json()
+
+            if "predicted_profit" in result:
+                df["Predicted Profit"] = result["predicted_profit"]
+                st.write("### Predictions")
+                st.dataframe(df)
+
+                # Visualization: Actual vs. Predicted
+                if "Profit" in df.columns:
+                    fig, ax = plt.subplots(figsize=(7, 5))
+                    ax.bar(df.index, df["Profit"], label="Actual Profit", color="blue", alpha=0.7)
+                    ax.bar(df.index, df["Predicted Profit"], label="Predicted Profit", color="red", alpha=0.7)
+                    plt.xlabel("Index")
+                    plt.ylabel("Profit")
+                    plt.title("Actual vs. Predicted Profit")
+                    plt.legend()
+                    st.pyplot(fig)
                 
-                if "predicted_profit" in result:
-                    df["Predicted Profit"] = result["predicted_profit"]
-                    st.write("### Predictions")
-                    st.dataframe(df)
-
-                    # 📊 Visualization: Actual vs. Predicted
-                    if "Profit" in df.columns:
-                        fig, ax = plt.subplots(figsize=(7, 5))
-                        ax.bar(df.index, df["Profit"], label="Actual Profit", color="blue", alpha=0.7)
-                        ax.bar(df.index, df["Predicted Profit"], label="Predicted Profit", color="red", alpha=0.7)
-                        plt.xlabel("Index")
-                        plt.ylabel("Profit")
-                        plt.title("Actual vs. Predicted Profit")
-                        plt.legend()
-                        st.pyplot(fig)
-                    
-                    # 🖥️ Downloadable Excel File with Predictions
-                    output = io.BytesIO()
-                    df.to_excel(output, index=False, engine="openpyxl")
-                    output.seek(0)
-                    st.download_button("Download Predicted Excel", output, file_name="predicted_results.xlsx")
-
-                else:
-                    st.error(result.get("error", "Unexpected response format."))
+                # Downloadable file
+                output = io.BytesIO()
+                df.to_excel(output, index=False, engine="openpyxl")
+                output.seek(0)
+                st.download_button("Download Predicted Excel", output, file_name="predicted_results.xlsx")
 
             else:
-                st.error("Error: Unable to get a response from the API.")
+                st.error(result.get("error", "Unexpected response format."))
 
-        except Exception as e:
-            st.error(f"Error processing file: {e}")
+        else:
+            st.error("Error: Unable to get a response from the API.")
+
+    except Exception as e:
+        st.error(f"Error processing file: {e}")
 
 # ⌨️ Manual Prediction
 elif option == "⌨️ Manual Prediction":
