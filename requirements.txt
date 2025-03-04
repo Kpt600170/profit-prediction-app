@@ -7,3 +7,6 @@ pip install openpyxl
 pip install requests
 pip install joblib
 pip install matplotlib
+python -m ensurepip
+python -m pip install --upgrade pip setuptools wheel
+pip install --no-cache-dir flask streamlit pandas openpyxl requests joblib matplotlib
