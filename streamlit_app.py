@@ -24,7 +24,8 @@ if option == "📂 Upload Excel File":
     uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx", "xls", "csv"])
     
     if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file)
+        df = pd.read_excel(uploaded_file)
+        st.dataframe(df.head())
     else:
         st.error("Please upload a valid Excel file.") 
         st.write("### Uploaded Data Preview")
