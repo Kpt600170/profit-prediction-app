@@ -13,15 +13,16 @@ option = st.sidebar.radio("Go to", ["📂 Upload Excel File", "⌨️ Manual Pre
 # Function to send request to Flask API for Excel prediction
 def predict_from_excel(uploaded_file):
     try:
-        # Ensure correct engine based on file type
-        file_extension = uploaded_file.name.split(".")[-1]
+        file_extension = uploaded_file.name.split(".")[-1].lower()
 
         if file_extension == "xlsx":
             df = pd.read_excel(uploaded_file, engine="openpyxl")
         elif file_extension == "xls":
             df = pd.read_excel(uploaded_file, engine="xlrd")
+        elif file_extension == "csv":  # ✅ Handling CSV files
+            df = pd.read_csv(uploaded_file)
         else:
-            return {"error": "Unsupported file format. Please upload an Excel file (.xls or .xlsx)."}
+            return {"error": "Unsupported file format. Please upload an Excel (.xls, .xlsx) or CSV (.csv) file."}
 
         # Convert DataFrame to JSON for API request
         json_data = {"features": df.values.tolist()}  
@@ -43,14 +44,16 @@ if option == "📂 Upload Excel File":
     
 if uploaded_file is not None:
     try:
-        file_extension = uploaded_file.name.split(".")[-1]
+        file_extension = uploaded_file.name.split(".")[-1].lower()
 
         if file_extension == "xlsx":
             df = pd.read_excel(uploaded_file, engine="openpyxl")
         elif file_extension == "xls":
             df = pd.read_excel(uploaded_file, engine="xlrd")
+        elif file_extension == "csv":  # ✅ Handling CSV files
+            df = pd.read_csv(uploaded_file)
         else:
-            st.error("Unsupported file format. Please upload an Excel file (.xls or .xlsx).")
+            st.error("Unsupported file format. Please upload an Excel (.xls, .xlsx) or CSV (.csv) file.")
             st.stop()  # Stop execution if the file format is wrong
 
         st.write("### Uploaded Data Preview")
@@ -82,9 +85,9 @@ if uploaded_file is not None:
                 
                 # Downloadable file
                 output = io.BytesIO()
-                df.to_excel(output, index=False, engine="openpyxl")
+                df.to_csv(output, index=False)
                 output.seek(0)
-                st.download_button("Download Predicted Excel", output, file_name="predicted_results.xlsx")
+                st.download_button("Download Predicted CSV", output, file_name="predicted_results.csv")
 
             else:
                 st.error(result.get("error", "Unexpected response format."))
