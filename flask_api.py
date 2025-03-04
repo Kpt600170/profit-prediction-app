@@ -46,7 +46,7 @@ def predict_from_excel():
         return jsonify({"error": f"Error reading file: {e}"}), 400
 
     # Ensure required columns are present
-    required_features = ['Feature1', 'Feature2', 'Feature3']  # Replace with actual feature names
+    required_features = ['R&D Spend', 'Administration ', 'Market Spend']  # Replace with actual feature names
     if not all(col in df.columns for col in required_features):
         return jsonify({"error": f"File must contain columns: {required_features}"}), 400
 
