@@ -21,7 +21,7 @@ if option == "📂 Upload Excel File":
     st.title("📈 Profit Prediction App")
     st.write("Upload an Excel file to predict profit using the trained ElasticNet model.")
 
-    uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx"])
+    uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx", "csv", "xls")
     
     if uploaded_file:
         df = pd.read_excel(uploaded_file)
