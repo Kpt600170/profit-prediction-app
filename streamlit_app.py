@@ -14,7 +14,7 @@ option = st.sidebar.radio("Go to", ["📂 Upload Excel File", "⌨️ Manual Pre
 def predict_from_excel(uploaded_file):
     try:
         # Read the uploaded file into a DataFrame
-        df = pd.read_excel(uploaded_file)
+        df = pd.read_csv(uploaded_file)
         
         # Convert DataFrame to JSON
         json_data = {"features": df.values.tolist()}  
