@@ -1,9 +1,9 @@
-flask
 streamlit
 pandas
 openpyxl
-requests
-joblib
-matplotlib
+plotly_express
+xlsxwriter
 numpy
-pandas
+seaborn
+matplotlib
+scikit-learn
